@@ -1007,6 +1007,13 @@ do
 
         assert(Info.Default, 'AddKeyPicker: Missing default value.');
 
+        local function GetDisplayName(keyName)
+            if keyName == 'MB1' then return 'MB1 (Left)' end
+            if keyName == 'MB2' then return 'MB2 (Right)' end
+            if keyName == 'MB3' then return 'MB3 (Middle)' end
+            return keyName
+        end;
+
         local KeyPicker = {
             Value = Info.Default;
             Toggled = false;
@@ -1048,7 +1055,7 @@ do
         local DisplayLabel = Library:CreateLabel({
             Size = UDim2.new(1, 0, 1, 0);
             TextSize = 13;
-            Text = Info.Default;
+            Text = GetDisplayName(Info.Default);
             TextWrapped = true;
             ZIndex = 8;
             Parent = PickInner;
@@ -1184,9 +1191,10 @@ do
 
                 local Key = KeyPicker.Value;
 
-                if Key == 'MB1' or Key == 'MB2' then
+                if Key == 'MB1' or Key == 'MB2' or Key == 'MB3' then
                     return Key == 'MB1' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-                        or Key == 'MB2' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2);
+                        or Key == 'MB2' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+                        or Key == 'MB3' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton3);
                 else
                     return InputService:IsKeyDown(Enum.KeyCode[KeyPicker.Value]);
                 end;
@@ -1254,19 +1262,26 @@ do
                 local Event;
                 Event = InputService.InputBegan:Connect(function(Input)
                     local Key;
+                    local DisplayKey;
 
                     if Input.UserInputType == Enum.UserInputType.Keyboard then
                         Key = Input.KeyCode.Name;
+                        DisplayKey = Key;
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton1 then
                         Key = 'MB1';
+                        DisplayKey = 'MB1 (Left)';
                     elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
                         Key = 'MB2';
+                        DisplayKey = 'MB2 (Right)';
+                    elseif Input.UserInputType == Enum.UserInputType.MouseButton3 then
+                        Key = 'MB3';
+                        DisplayKey = 'MB3 (Middle)';
                     end;
 
                     Break = true;
                     Picking = false;
 
-                    DisplayLabel.Text = Key;
+                    DisplayLabel.Text = GetDisplayName(Key);
                     KeyPicker.Value = Key;
 
                     Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
@@ -1286,9 +1301,10 @@ do
                 if KeyPicker.Mode == 'Toggle' then
                     local Key = KeyPicker.Value;
 
-                    if Key == 'MB1' or Key == 'MB2' then
+                    if Key == 'MB1' or Key == 'MB2' or Key == 'MB3' then
                         if Key == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
-                        or Key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2 then
+                        or Key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2
+                        or Key == 'MB3' and Input.UserInputType == Enum.UserInputType.MouseButton3 then
                             KeyPicker.Toggled = not KeyPicker.Toggled
                             KeyPicker:DoClick()
                         end;
